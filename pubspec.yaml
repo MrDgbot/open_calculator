@@ -55,6 +55,7 @@ dependencies:
   flex_grid: ^5.0.3
   loading_more_list: ^5.0.2
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,6 +66,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  glob: ^2.1.1
+  process_run: ^0.12.3+2
+  args: ^2.3.1
+  http: ^0.13.5
+  yaml: ^3.1.1
 
 flutter:
 

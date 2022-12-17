@@ -156,14 +156,14 @@ jobs:
               store: false
           write-mode: append
 
-      - name: Write MS Store
-        uses: DamianReeves/write-file-action@v1.0
-        with:
-          path: lib/modifiers.dart
-          contents: |
-            // Generated file. Do not modify
-            const isMSStore = false;
-          write-mode: overwrite
+      # - name: Write MS Store
+      #   uses: DamianReeves/write-file-action@v1.0
+      #   with:
+      #     path: lib/modifiers.dart
+      #     contents: |
+      #       // Generated file. Do not modify
+      #       const isMSStore = false;
+      #     write-mode: overwrite
 
       - name: Flutter build app
         run: flutter build windows

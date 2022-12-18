@@ -58,8 +58,8 @@ class UserUtil {
         hard: [3 + Random().nextInt(i * 4), 2 + Random().nextInt(i * 3)],
       );
       gradeList.data?.add(item);
-      print(generateGradeListData);
     }
+    // print(gradeList.toString());
     StorageUtil.setString("generateGradeList", gradeList.toString());
   }
 // // Create a map that maps grades to their corresponding data

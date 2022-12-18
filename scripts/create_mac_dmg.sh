@@ -2,7 +2,7 @@
 test -f openCalculator.dmg && rm openCalculator.dmg
 create-dmg \
   --volname "openCalculator Installer" \
-  --volicon "./assets/installer.icns.icns" \
+  --volicon "./assets/installer.icns" \
   --background "./assets/dmg_background.png" \
   --window-pos 200 120 \
   --window-size 800 530 \

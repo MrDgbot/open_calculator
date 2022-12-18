@@ -53,8 +53,14 @@ class UserUtil {
     for (var i = 1; i <= 6; i++) {
       /// 数量，长度
       final gradeItem item = gradeItem(
-        easy: [3 + Random().nextInt(i * 2), 2 + Random().nextInt(i * 1)],
-        medium: [3 + Random().nextInt(i * 3), 2 + Random().nextInt(i * 2)],
+        easy: [
+          3 + Random().nextInt(i * 2),
+          2 + Random().nextInt(i * 1),
+        ],
+        medium: [
+          3 + Random().nextInt(i * 3),
+          2 + Random().nextInt(i * 2),
+        ],
         hard: [3 + Random().nextInt(i * 4), 2 + Random().nextInt(i * 3)],
       );
       gradeList.data?.add(item);

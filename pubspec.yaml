@@ -38,7 +38,6 @@ dependencies:
   bitsdojo_window: ^0.1.5
   fluentui_system_icons: ^1.1.185
   oktoast: ^3.3.1
-  pull_to_refresh: ^2.0.0
   share_plus: ^6.2.0
   url_launcher: ^6.1.6
   bruno: ^3.1.0

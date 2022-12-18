@@ -16,30 +16,34 @@ class Generator {
 
   final rand = math.Random();
 
-  List<CalculationAble> random(int count, int length) {
+  List<CalculationAble> random(
+      int count, int length, List<bool> allowedOperators) {
     assert(count > 0);
     final list = <CalculationAble>[];
 
     for (int i = 0; i < count; i++) {
-      var item = generate(length, rand.nextInt(100));
+      var item = generate(length, rand.nextInt(100), allowedOperators);
       while (list.contains(item)) {
-        item = generate(length, rand.nextInt(100));
+        item = generate(length, rand.nextInt(100), allowedOperators);
       }
       list.add(item);
     }
     return list;
   }
 
-  CalculationAble generate(int length, int result) {
+  CalculationAble generate(
+      int length, int result, List<bool> allowedOperators) {
     assert(length >= 2);
 
-    Arithmetic rc = generateCalculation(result);
+    Arithmetic rc = generateCalculation(result, allowedOperators);
     Arithmetic pointer = rc;
     while (rc.length < length) {
       if (pointer.first.length == 1) {
-        pointer.first = generateCalculation(pointer.first.result);
+        pointer.first =
+            generateCalculation(pointer.first.result, allowedOperators);
       } else if (pointer.last!.length == 1) {
-        pointer.last = generateCalculation(pointer.last!.result);
+        pointer.last =
+            generateCalculation(pointer.last!.result, allowedOperators);
 
         pointer = (rand.nextInt(2) == 0 ? pointer.first : pointer.last!)
             as Arithmetic;
@@ -48,8 +52,12 @@ class Generator {
     return rc;
   }
 
-  Arithmetic generateCalculation(int result) {
-    final oper = Operator.values[rand.nextInt(4)];
+  /// 生成运算题目
+  Arithmetic generateCalculation(int result, List<bool> allowedOperators) {
+    final allowed =
+        Operator.values.where((o) => allowedOperators[o.index]).toList();
+    final oper = allowed[rand.nextInt(allowed.length)];
+    // final oper = Operator.values[rand.nextInt(4)];
     final List<Calculation>? randBox;
     switch (oper) {
       case Operator.add:
@@ -66,11 +74,11 @@ class Generator {
         break;
     }
     if (randBox == null) {
-      return generateCalculation(result);
+      return generateCalculation(result, allowedOperators);
     }
     final item = randBox[rand.nextInt(randBox.length)];
     if (rand.nextDouble() < 0.9 && (item.first == 1 || item.last == 1)) {
-      return generateCalculation(result);
+      return generateCalculation(result, allowedOperators);
     }
 
     return randBox[rand.nextInt(randBox.length)].upgrade();

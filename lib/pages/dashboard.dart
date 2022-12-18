@@ -155,22 +155,25 @@ class _DashBoardPageState extends State<DashBoardPage> {
   final _cardMapInfo = {
     '简单': {
       'image': 'assets/easy.svg',
-      'context': '${UserUtil.currentGrade?.easy![1].toString()} 位数四则运算，'
-          '题目数量：${UserUtil.currentGrade?.easy![0].toString()}',
+      'context':
+          '100以内算式长度为${UserUtil.currentGrade?.easy![1].toString()}的混合四则运算，'
+              '题目数量：${UserUtil.currentGrade?.easy![0].toString()}',
       'buttonColor': '#5FCE72',
       'star': '2'
     },
     '中等': {
       'image': 'assets/medium.svg',
-      'context': '${UserUtil.currentGrade?.medium![1].toString()} 位数四则运算，'
-          '题目数量：${UserUtil.currentGrade?.medium![0].toString()}',
+      'context':
+          '100以内算式长度为${UserUtil.currentGrade?.medium![1].toString()}的混合四则运算，'
+              '题目数量：${UserUtil.currentGrade?.medium![0].toString()}',
       'buttonColor': '#FFAB40',
       'star': '3'
     },
     '困难': {
       'image': 'assets/hard.svg',
-      'context': '${UserUtil.currentGrade?.hard![1].toString()} 位数四则运算，'
-          '题目数量：${UserUtil.currentGrade?.hard![0].toString()}',
+      'context':
+          '100以内算式长度为${UserUtil.currentGrade?.hard![1].toString()}的混合四则运算，'
+              '题目数量：${UserUtil.currentGrade?.hard![0].toString()}',
       'buttonColor': '#FF5252',
       'star': '5'
     },
@@ -240,8 +243,8 @@ class _DashBoardPageState extends State<DashBoardPage> {
               onPressed: () {
                 // 跳转到练习Exercise页面有两个个参数，年级和难度
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Exercise(
-                    grade: '1',
+                  return ExercisePage(
+                    grade: UserManager().gradeId,
                     difficulty: title,
                   );
                 }));

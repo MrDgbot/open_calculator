@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:open_calculator/topvars.dart';
 import 'package:oktoast/oktoast.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+// import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -213,27 +213,27 @@ extension StringExt on String {
   }
 }
 
-extension RefreshControllerExt on RefreshController {
-  completed({bool noMore = false}) {
-    if (isRefresh) {
-      refreshCompleted();
-    } else if (isLoading) {
-      if (noMore) {
-        loadNoData();
-      } else {
-        loadComplete();
-      }
-    }
-  }
+// extension RefreshControllerExt on RefreshController {
+//   completed({bool noMore = false}) {
+//     if (isRefresh) {
+//       refreshCompleted();
+//     } else if (isLoading) {
+//       if (noMore) {
+//         loadNoData();
+//       } else {
+//         loadComplete();
+//       }
+//     }
+//   }
 
-  failed() {
-    if (isRefresh) {
-      refreshFailed();
-    } else if (isLoading) {
-      loadFailed();
-    }
-  }
-}
+//   failed() {
+//     if (isRefresh) {
+//       refreshFailed();
+//     } else if (isLoading) {
+//       loadFailed();
+//     }
+//   }
+// }
 
 /// https://stackoverflow.com/a/50081214/10064463
 extension HexColor on Color {

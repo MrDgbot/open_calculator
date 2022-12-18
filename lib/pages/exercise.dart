@@ -10,22 +10,23 @@ import 'package:open_calculator/model/submit_list.dart';
 import 'package:open_calculator/model/user_manager.dart';
 import 'package:open_calculator/topvars.dart';
 import 'package:flutter/material.dart';
+
 // import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
 
-class Exercise extends StatefulWidget {
+class ExercisePage extends StatefulWidget {
   /// 接收参数，年级和难度
   final String grade;
   final String difficulty;
 
-  const Exercise({Key? key, required this.grade, required this.difficulty})
+  const ExercisePage({Key? key, required this.grade, required this.difficulty})
       : super(key: key);
 
   @override
-  State<Exercise> createState() => _ExerciseState();
+  State<ExercisePage> createState() => _ExercisePageState();
 }
 
-class _ExerciseState extends State<Exercise> {
+class _ExercisePageState extends State<ExercisePage> {
   double _value = 0.0;
   bool _isSubmit = false;
 
@@ -54,6 +55,7 @@ class _ExerciseState extends State<Exercise> {
   final List<Color> _colors = [];
   int currentCount = 0;
   int currentLen = 0;
+
   @override
   void initState() {
     super.initState();
@@ -90,7 +92,19 @@ class _ExerciseState extends State<Exercise> {
         currentLen = UserUtil.currentGrade?.hard![1];
         break;
     }
-    _calculationAbles = Generator().random(currentCount, currentLen);
+
+    /// 一到二年级加减法
+    final List<bool> firstGrade = [true, true, false, false];
+
+    /// 三到六年级加减乘除
+    final List<bool> otherGrade = [true, true, true, true];
+
+    _calculationAbles = Generator().random(
+        currentCount,
+        currentLen,
+        UserManager().gradeId == '1' || UserManager().gradeId == '2'
+            ? firstGrade
+            : otherGrade);
 
     /// 根据长度初始化控制器
     _createTextController();
@@ -126,6 +140,7 @@ class _ExerciseState extends State<Exercise> {
 
   // 检查答案
   void _checkAnswer() async {
+    // 初始化提交列表
     SubmitList submitList = SubmitList(
         username: UserManager().userName.toString(),
         gradeId: widget.grade.toString(),
@@ -143,7 +158,9 @@ class _ExerciseState extends State<Exercise> {
     int correctCount = 0;
     // 错误数量
     int errorCount = 0;
+
     String postResult = '';
+    // 遍历 _controllers 数
     for (var i = 0; i < _controllers.length; i++) {
       postResult = _controllers[i].text;
       if (_controllers[i].text == _calculationAbles[i].result.toString()) {
@@ -216,24 +233,12 @@ class _ExerciseState extends State<Exercise> {
     super.dispose();
   }
 
-  /// 数字转年级中文
-  String grade2String() {
-    return {
-      '1': '一年级',
-      '2': '二年级',
-      '3': '三年级',
-      '4': '四年级',
-      '5': '五年级',
-      '6': '六年级',
-    }[widget.grade]!;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 70, 74, 121),
-        title: Text('习题集 ${grade2String()} ${widget.difficulty}',
+        title: Text('习题集 ${UserManager().gradeString} ${widget.difficulty}',
             style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white,
@@ -291,101 +296,99 @@ class _ExerciseState extends State<Exercise> {
       backgroundColor: const Color.fromARGB(255, 70, 74, 121),
       body: Column(
         children: [
-          buildTopList(),
+          Expanded(child: buildTopList()),
           // 提交卡片
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Card(
-                elevation: 1,
-                // 顶部左右圆角
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(29),
-                        topRight: Radius.circular(29))),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.query_builder_outlined,
-                        color: Color.fromARGB(255, 70, 74, 121),
-                      ),
-                      const Text(
-                        '答题时间 ',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 70, 74, 121),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Card(
+              elevation: 1,
+              // 顶部左右圆角
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(29),
+                      topRight: Radius.circular(29))),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.query_builder_outlined,
+                      color: Color.fromARGB(255, 70, 74, 121),
+                    ),
+                    const Text(
+                      '答题时间 ',
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 70, 74, 121),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
 
-                      ///AnimatedFlipCounter
-                      AnimatedFlipCounter(
-                        value: _hour,
-                        fractionDigits: 0, // decimal precision
-                        suffix: "h",
-                        textStyle: TextStyle(
+                    ///AnimatedFlipCounter
+                    AnimatedFlipCounter(
+                      value: _hour,
+                      fractionDigits: 0, // decimal precision
+                      suffix: "h",
+                      textStyle: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _hour >= 1 ? Colors.red : Colors.green,
+                      ),
+                    ),
+                    AnimatedFlipCounter(
+                      value: _minute,
+                      fractionDigits: 0, // decimal precision
+                      suffix: "m",
+                      textStyle: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _minute >= 30 ? Colors.red : Colors.green,
+                      ),
+                    ),
+                    AnimatedFlipCounter(
+                      value: _second,
+                      fractionDigits: 0, // decimal precision
+                      suffix: "s",
+                      textStyle: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: _second >= 30 ? Colors.red : Colors.green,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 40,
+                    ),
+                    const Icon(
+                      Icons.text_snippet_sharp,
+                      color: Color.fromARGB(255, 70, 74, 121),
+                    ),
+                    Text(
+                      '答题进度 $totalCount/${_calculationAbles.length}',
+                      style: const TextStyle(
+                          color: Color.fromARGB(255, 70, 74, 121),
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _hour >= 1 ? Colors.red : Colors.green,
-                        ),
-                      ),
-                      AnimatedFlipCounter(
-                        value: _minute,
-                        fractionDigits: 0, // decimal precision
-                        suffix: "m",
-                        textStyle: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _minute >= 30 ? Colors.red : Colors.green,
-                        ),
-                      ),
-                      AnimatedFlipCounter(
-                        value: _second,
-                        fractionDigits: 0, // decimal precision
-                        suffix: "s",
-                        textStyle: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _second >= 30 ? Colors.red : Colors.green,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 40,
-                      ),
-                      const Icon(
-                        Icons.text_snippet_sharp,
-                        color: Color.fromARGB(255, 70, 74, 121),
-                      ),
-                      Text(
-                        '答题进度 $totalCount/${_calculationAbles.length}',
-                        style: const TextStyle(
-                            color: Color.fromARGB(255, 70, 74, 121),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      // 提交显示正确率,根据_colors数组中绿色和红色计算
-                      _isSubmit
-                          ? Row(
-                              children: [
-                                const SizedBox(
-                                  width: 40,
-                                ),
-                                Text(
-                                  '正确率:${(correctRate * 100).toStringAsFixed(2)}%',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            )
-                          : Container(),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    // 提交显示正确率,根据_colors数组中绿色和红色计算
+                    _isSubmit
+                        ? Row(
+                            children: [
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Text(
+                                '正确率:${(correctRate * 100).toStringAsFixed(2)}%',
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          )
+                        : Container(),
 
-                      const Expanded(child: sizedBox),
-                      // 绿色圆角提交按钮 左边为图标
-                      submitButton(context),
-                    ],
-                  ),
+                    const Expanded(child: sizedBox),
+                    // 绿色圆角提交按钮 左边为图标
+                    submitButton(context),
+                  ],
                 ),
               ),
             ),
@@ -453,7 +456,6 @@ class _ExerciseState extends State<Exercise> {
   Container buildTopList() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      height: Screen.screenHeight / 1.4,
       child: ListView.builder(
           itemCount: _calculationAbles.length,
           scrollDirection: Axis.vertical,
@@ -621,6 +623,7 @@ class _ExerciseState extends State<Exercise> {
           ),
         ),
       );
+
   //
   // Expanded _drawBoard(int position) {
   //   return Expanded(

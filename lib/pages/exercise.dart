@@ -1,25 +1,39 @@
 import 'dart:async';
 
 // import 'package:flutter_drawing_board/paint_contents.dart';
+import 'package:animated_flip_counter/animated_flip_counter.dart';
+import 'package:eval_ex/expression.dart';
 import 'package:open_calculator/apis/repo.dart';
+import 'package:open_calculator/common/extension.dart';
 import 'package:open_calculator/common/generator.dart';
 import 'package:open_calculator/common/log.dart';
 import 'package:open_calculator/common/screen.dart';
 import 'package:open_calculator/common/user_util.dart';
+import 'package:open_calculator/model/error_upload.dart';
+import 'package:open_calculator/model/exercise_details.dart';
 import 'package:open_calculator/model/submit_list.dart';
 import 'package:open_calculator/model/user_manager.dart';
+import 'package:open_calculator/pages/home.dart';
 import 'package:open_calculator/topvars.dart';
 import 'package:flutter/material.dart';
 
 // import 'package:flutter_drawing_board/flutter_drawing_board.dart';
-import 'package:animated_flip_counter/animated_flip_counter.dart';
 
 class ExercisePage extends StatefulWidget {
   /// 接收参数，年级和难度
   final String grade;
   final String difficulty;
 
-  const ExercisePage({Key? key, required this.grade, required this.difficulty})
+  /// 展示风格
+  /// 0:做题
+  /// 1:查看
+  final int type;
+
+  const ExercisePage(
+      {Key? key,
+      required this.grade,
+      required this.difficulty,
+      required this.type})
       : super(key: key);
 
   @override
@@ -29,6 +43,9 @@ class ExercisePage extends StatefulWidget {
 class _ExercisePageState extends State<ExercisePage> {
   double _value = 0.0;
   bool _isSubmit = false;
+  ExerciseDetail? _exerciseDetails;
+
+  bool isLoading = false;
 
   /// 定时器
   late Timer? _timer;
@@ -52,15 +69,14 @@ class _ExercisePageState extends State<ExercisePage> {
   // final List<DrawingController> _drawControllers = [];
 
   /// 颜色
-  final List<Color> _colors = [];
+  List<Color> _colors = [];
   int currentCount = 0;
   int currentLen = 0;
 
   @override
   void initState() {
     super.initState();
-    // 1秒后开始倒计时
-    loading();
+    0 == widget.type ? _loading() : _loadNetwork();
     _timer = Timer(const Duration(seconds: 1), () {
       _startTimer();
     });
@@ -74,10 +90,8 @@ class _ExercisePageState extends State<ExercisePage> {
     }[grade]!;
   }
 
-  /// 初始化题目
-  void loading() {
-    // List<String> difficulties = ['简单', '中等', '困难'];
-
+  /// 本地生成题目
+  _loading() {
     switch (widget.difficulty) {
       case '简单':
         currentCount = UserUtil.currentGrade?.easy![0];
@@ -108,6 +122,36 @@ class _ExercisePageState extends State<ExercisePage> {
 
     /// 根据长度初始化控制器
     _createTextController();
+  }
+
+  /// 网络加载题目
+  _loadNetwork() async {
+    try {
+      var data = await Repo.getExerciseDetail(int.parse(widget.grade),
+          filter: int.parse(widget.difficulty));
+      if (data.success) {
+        setState(() {
+          _exerciseDetails = ExerciseDetail.fromJson(data.data);
+
+          /// 初始化控制器
+          _controllers = List.generate(_exerciseDetails!.data!.length,
+              (index) => TextEditingController());
+
+          /// 初始化颜色
+          _colors = List.filled(_exerciseDetails!.data!.length,
+              const Color.fromARGB(255, 57, 60, 93));
+          setState(() {
+            isLoading = true;
+          });
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      "获取习题详情失败".toast();
+      e.toString().debug();
+    }
   }
 
   /// 创建文本控制器
@@ -204,6 +248,52 @@ class _ExercisePageState extends State<ExercisePage> {
     }
   }
 
+  //  上传题目
+  void _uploadExercise() async {
+    ErrorUpload errorUpload = ErrorUpload(
+      storageId: widget.grade.toString(),
+      datalist: [],
+    );
+
+    for (int i = 0; i < _controllers.length; i++) {
+      int postResult = 0;
+      Expression exp = Expression(_exerciseDetails!.data![i].exerciseContent!
+          .replaceAll('=', '')
+          .replaceAll("×", '*')
+          .replaceAll('÷', '/'));
+      if (exp.eval().toString() == _controllers[i].text) {
+        _colors[i] = Colors.green;
+        postResult = 1;
+      } else {
+        _colors[i] = Colors.red;
+        _controllers[i].text += '[正确答案：${exp.eval().toString()}]';
+        postResult = 0;
+      }
+      ErrorUploadItem errorUploadItem = ErrorUploadItem(
+        exerciseContent: _exerciseDetails!.data![i].exerciseContent!
+            .replaceAll('=', '')
+            .toString(),
+        exerciseResult: postResult == 0
+            ? _exerciseDetails!.data![i].exerciseResult
+            : _controllers[i].text,
+        exerciseResultStatus: postResult,
+      );
+      errorUpload.datalist!.add(errorUploadItem);
+    }
+    try {
+      var data = await Repo.uploadErrorExercise(errorUpload);
+      if (data.success) {
+        "上传成功".toast();
+        setState(() {
+          _isSubmit = true;
+        });
+      }
+    } catch (e) {
+      e.toString().debug();
+      "上传失败".toast();
+    }
+  }
+
   // 正计时操作【时分秒】
   void _startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -236,169 +326,195 @@ class _ExercisePageState extends State<ExercisePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 70, 74, 121),
-        title: Text('习题集 ${UserManager().gradeString} ${widget.difficulty}',
-            style: const TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        // 返回红色按钮
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: OutlinedButton(
-              // 边框调整为白色
-              style: OutlinedButton.styleFrom(
-                // side: BorderSide(color: Colors.white.withOpacity(1)),
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-              ),
-              child: Text('退出',
-                  style: TextStyle(
-                      fontSize: 16, color: Colors.white.withOpacity(0.6))),
-              onPressed: () {
-                /// 弹窗提示确认后返回
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    backgroundColor: const Color.fromARGB(255, 70, 74, 121),
-                    title: const Text('本次做题记录将不会保存，确认退出吗？',
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
-                    actions: [
-                      TextButton(
-                        child: const Text('取消',
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.white)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      TextButton(
-                        child: Text('确认',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withOpacity(0.6))),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-        leading: Container(),
-      ),
+      appBar: _buildAppBar(context, widget.type),
       backgroundColor: const Color.fromARGB(255, 70, 74, 121),
-      body: Column(
-        children: [
-          Expanded(child: buildTopList()),
-          // 提交卡片
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Card(
-              elevation: 1,
-              // 顶部左右圆角
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(29),
-                      topRight: Radius.circular(29))),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.query_builder_outlined,
-                      color: Color.fromARGB(255, 70, 74, 121),
-                    ),
-                    const Text(
-                      '答题时间 ',
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 70, 74, 121),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
+      body: widget.type != 0 && !isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
+              children: [
+                Expanded(child: buildTopList()),
+                // 提交卡片
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Card(
+                    elevation: 1,
+                    // 顶部左右圆角
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(29),
+                            topRight: Radius.circular(29))),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 20),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.query_builder_outlined,
+                            color: Color.fromARGB(255, 70, 74, 121),
+                          ),
+                          const Text(
+                            '答题时间 ',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 70, 74, 121),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
 
-                    ///AnimatedFlipCounter
-                    AnimatedFlipCounter(
-                      value: _hour,
-                      fractionDigits: 0, // decimal precision
-                      suffix: "h",
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _hour >= 1 ? Colors.red : Colors.green,
-                      ),
-                    ),
-                    AnimatedFlipCounter(
-                      value: _minute,
-                      fractionDigits: 0, // decimal precision
-                      suffix: "m",
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _minute >= 30 ? Colors.red : Colors.green,
-                      ),
-                    ),
-                    AnimatedFlipCounter(
-                      value: _second,
-                      fractionDigits: 0, // decimal precision
-                      suffix: "s",
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: _second >= 30 ? Colors.red : Colors.green,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 40,
-                    ),
-                    const Icon(
-                      Icons.text_snippet_sharp,
-                      color: Color.fromARGB(255, 70, 74, 121),
-                    ),
-                    Text(
-                      '答题进度 $totalCount/${_calculationAbles.length}',
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 70, 74, 121),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    // 提交显示正确率,根据_colors数组中绿色和红色计算
-                    _isSubmit
-                        ? Row(
-                            children: [
-                              const SizedBox(
-                                width: 40,
-                              ),
-                              Text(
-                                '正确率:${(correctRate * 100).toStringAsFixed(2)}%',
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          )
-                        : Container(),
+                          ///AnimatedFlipCounter
+                          AnimatedFlipCounter(
+                            value: _hour,
+                            fractionDigits: 0, // decimal precision
+                            suffix: "h",
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: _hour >= 1 ? Colors.red : Colors.green,
+                            ),
+                          ),
+                          AnimatedFlipCounter(
+                            value: _minute,
+                            fractionDigits: 0, // decimal precision
+                            suffix: "m",
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: _minute >= 30 ? Colors.red : Colors.green,
+                            ),
+                          ),
+                          AnimatedFlipCounter(
+                            value: _second,
+                            fractionDigits: 0, // decimal precision
+                            suffix: "s",
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: _second >= 30 ? Colors.red : Colors.green,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 40,
+                          ),
+                          const Icon(
+                            Icons.text_snippet_sharp,
+                            color: Color.fromARGB(255, 70, 74, 121),
+                          ),
+                          Text(
+                            '答题进度 $totalCount/${widget.type == 0 ? _calculationAbles.length : _exerciseDetails!.data!.length}',
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 70, 74, 121),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          // 提交显示正确率,根据_colors数组中绿色和红色计算
+                          _isSubmit
+                              ? Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 40,
+                                    ),
+                                    Text(
+                                      '正确率:${(correctRate * 100).toStringAsFixed(2)}%',
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                )
+                              : Container(),
 
-                    const Expanded(child: sizedBox),
-                    // 绿色圆角提交按钮 左边为图标
-                    submitButton(context),
-                  ],
-                ),
-              ),
+                          const Expanded(child: sizedBox),
+                          // 绿色圆角提交按钮 左边为图标
+                          submitButton(context, widget.type),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
-          )
-        ],
-      ),
     );
   }
 
-  ElevatedButton submitButton(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context, int type) {
+    return AppBar(
+      backgroundColor: const Color.fromARGB(255, 70, 74, 121),
+      title: Text(
+          widget.type != 0
+              ? '错题记录'
+              : '习题集 ${UserManager().gradeString} ${widget.difficulty}',
+          style: const TextStyle(
+              fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+      centerTitle: true,
+      // 返回红色按钮
+      actions: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: OutlinedButton(
+            // 边框调整为白色
+            style: OutlinedButton.styleFrom(
+              // side: BorderSide(color: Colors.white.withOpacity(1)),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            ),
+            child: Text('退出',
+                style: TextStyle(
+                    fontSize: 16, color: Colors.white.withOpacity(0.6))),
+            onPressed: () {
+              /// 弹窗提示确认后返回
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: const Color.fromARGB(255, 70, 74, 121),
+                  title: const Text('本次做题记录将不会保存，确认退出吗？',
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                  actions: [
+                    TextButton(
+                      child: const Text('取消',
+                          style: TextStyle(fontSize: 16, color: Colors.white)),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    TextButton(
+                      child: Text('确认',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.6))),
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        HomePage(
+                                          pageIndex: type == 0 ? 0 : 3,
+                                        ),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(1, 0),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
+                                  );
+                                }),
+                            (route) => route == null);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+      leading: Container(),
+    );
+  }
+
+  ElevatedButton submitButton(BuildContext context, int type) {
     return ElevatedButton(
       // 边框改成圆角
       style: ElevatedButton.styleFrom(
@@ -411,7 +527,32 @@ class _ExercisePageState extends State<ExercisePage> {
       onPressed: () {
         /// 弹窗提示确认后返回
         if (_isSubmit) {
-          Navigator.pop(context);
+          /// 返回并刷新页面 错题集页面,模拟退出动画
+          ///           Navigator.pushAndRemoveUntil(
+          // context,
+          // MaterialPageRoute(
+          //     builder: (context) => const HomePage(
+          //           pageIndex: 3,
+          //         )),
+          // (route) => route == null);
+          Navigator.pushAndRemoveUntil(
+              context,
+              PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      HomePage(
+                        pageIndex: type == 0 ? 0 : 3,
+                      ),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  }),
+              (route) => route == null);
         } else {
           showDialog(
             context: context,
@@ -437,7 +578,7 @@ class _ExercisePageState extends State<ExercisePage> {
                     // if (!_isSubmit) {
                     _timer?.cancel();
                     setState(() {
-                      _checkAnswer();
+                      widget.type == 0 ? _checkAnswer() : _uploadExercise();
                     });
                     // } else {
                     //   Navigator.pop(context);
@@ -457,27 +598,33 @@ class _ExercisePageState extends State<ExercisePage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: ListView.builder(
-          itemCount: _calculationAbles.length,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (_, int position) {
-            // 一行两个,如果剩余的只有一个,则单独一行
-            if (position % 2 == 0) {
-              return Row(
-                children: [
-                  Expanded(
-                    child: _buildItem(position),
-                  ),
-                  (position + 1 < _calculationAbles.length)
-                      ? Expanded(
-                          child: _buildItem(position + 1),
-                        )
-                      : const Expanded(child: sizedBox),
-                ],
-              );
-            } else {
-              return sizedBox;
-            }
-          }),
+        itemCount: widget.type != 0
+            ? _exerciseDetails!.data!.length
+            : _calculationAbles.length,
+        scrollDirection: Axis.vertical,
+        itemBuilder: (_, int position) {
+          // 一行两个,如果剩余的只有一个,则单独一行
+          if (position % 2 == 0) {
+            return Row(
+              children: [
+                Expanded(
+                  child: _buildItem(position),
+                ),
+                (position + 1 <
+                        (widget.type != 0
+                            ? _exerciseDetails!.data!.length
+                            : _calculationAbles.length))
+                    ? Expanded(
+                        child: _buildItem(position + 1),
+                      )
+                    : const Expanded(child: sizedBox),
+              ],
+            );
+          } else {
+            return sizedBox;
+          }
+        },
+      ),
     );
   }
 
@@ -497,7 +644,10 @@ class _ExercisePageState extends State<ExercisePage> {
                   children: [
                     // 题目
                     Text(
-                      "${_calculationAbles[position]} = ?",
+                      widget.type == 0
+                          ? "${_calculationAbles[position]} = ?"
+                          : _exerciseDetails!.data![position].exerciseContent!
+                              .replaceAll("=", ''),
                       overflow: TextOverflow.fade,
                       style: const TextStyle(
                           fontSize: 20,

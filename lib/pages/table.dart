@@ -8,7 +8,9 @@ import 'package:open_calculator/model/user_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
+import 'package:open_calculator/pages/exercise_details.dart';
 
+/// 做题记录
 class TablePage extends StatefulWidget {
   const TablePage({Key? key}) : super(key: key);
 
@@ -250,15 +252,15 @@ class _TablePageState extends State<TablePage> {
               alignment: Alignment.center,
               child: OutlinedButton(
                   onPressed: () {
-                    UserUtil.generateGradeList();
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => StorageDetailPage(
-                    //       storageId: userStorage!.data![index].storageId,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ExerciseDetailsPage(
+                          storageId: userStorage!.data![index].storageId!,
+                          type: 0,
+                        ),
+                      ),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,

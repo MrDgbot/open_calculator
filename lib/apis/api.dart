@@ -42,4 +42,10 @@ class API {
 
   /// 获取错题记录
   static const String getErrorCount = '$baseUrl/get_user_error_count';
+
+  /// 上传错题记录
+  static const String uploadErrorExercise = '$baseUrl/update_list';
+
+  /// 导入csv文件
+  static const String uploadCsv = '$baseUrl/upload_csv';
 }

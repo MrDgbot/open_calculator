@@ -30,13 +30,15 @@ class _DashBoardPageState extends State<DashBoardPage> {
   getTodayData() async {
     var data = await Repo.getToday(UserManager().userName);
     if (data.success) {
-      setState(() {
-        try {
-          todayInfo = TodayInfo.fromJson(data.data);
-        } catch (e) {
-          print(e);
-        }
-      });
+      if (mounted) {
+        setState(() {
+          try {
+            todayInfo = TodayInfo.fromJson(data.data);
+          } catch (e) {
+            print(e);
+          }
+        });
+      }
     }
   }
 
@@ -246,6 +248,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
                   return ExercisePage(
                     grade: UserManager().gradeId,
                     difficulty: title,
+                    type: 0,
                   );
                 }));
               },

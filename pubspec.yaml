@@ -53,6 +53,7 @@ dependencies:
   crypto: ^3.0.2
   flex_grid: ^5.0.3
   loading_more_list: ^5.0.2
+  eval_ex: ^1.1.7
 
 dev_dependencies:
   flutter_test:

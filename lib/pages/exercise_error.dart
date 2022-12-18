@@ -7,8 +7,9 @@ import 'package:open_calculator/model/user_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
-import 'package:open_calculator/pages/exercise_details.dart';
+import 'package:open_calculator/pages/exercise.dart';
 
+/// 错题记录
 class ExerciseErrorPage extends StatefulWidget {
   const ExerciseErrorPage({Key? key}) : super(key: key);
 
@@ -51,48 +52,48 @@ class _ExerciseErrorPageState extends State<ExerciseErrorPage> {
     return Container(
       padding: const EdgeInsets.all(Config.padding3),
       child: Card(
-          color: const Color.fromARGB(255, 98, 101, 151),
-          margin: const EdgeInsets.all(Config.padding1),
-          child: isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : errorCount == null
-                  ? const Center(
-                      child:
-                          Text('暂无数据', style: TextStyle(color: Colors.white)),
-                    )
-                  : errorCount!.data.isNullOrEmpty
-                      ? const Center(
-                          child: Text('还没有开始做题哦～',
-                              style: TextStyle(color: Colors.white)),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: SizedBox(
-                            height: 200,
-                            child: HorizontalDataTable(
-                              leftHandSideColumnWidth: leftColWidth,
-                              rightHandSideColumnWidth: rightColWidth,
-                              isFixedHeader: true,
-                              headerWidgets: _getTitleWidget(rightColWidth),
-                              leftSideItemBuilder: _generateFirstColumnRow,
-                              rightSideItemBuilder: (_, i) =>
-                                  _generateRightHandSideColumnRow(
-                                      _, i, rightColWidth),
-                              itemCount: errorCount!.data!.length,
-                              rowSeparatorWidget: const Divider(
-                                color: Colors.black54,
-                                height: 1.0,
-                                thickness: 0.0,
-                              ),
-                              leftHandSideColBackgroundColor:
-                                  const Color.fromARGB(255, 98, 101, 151),
-                              rightHandSideColBackgroundColor:
-                                  const Color.fromARGB(255, 98, 101, 151),
+        color: const Color.fromARGB(255, 98, 101, 151),
+        margin: const EdgeInsets.all(Config.padding1),
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : errorCount == null
+                ? const Center(
+                    child: Text('暂无数据', style: TextStyle(color: Colors.white)),
+                  )
+                : errorCount!.data.isNullOrEmpty
+                    ? const Center(
+                        child: Text('还没有开始做题哦～',
+                            style: TextStyle(color: Colors.white)),
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: SizedBox(
+                          height: 200,
+                          child: HorizontalDataTable(
+                            leftHandSideColumnWidth: leftColWidth,
+                            rightHandSideColumnWidth: rightColWidth,
+                            isFixedHeader: true,
+                            headerWidgets: _getTitleWidget(rightColWidth),
+                            leftSideItemBuilder: _generateFirstColumnRow,
+                            rightSideItemBuilder: (_, i) =>
+                                _generateRightHandSideColumnRow(
+                                    _, i, rightColWidth),
+                            itemCount: errorCount!.data!.length,
+                            rowSeparatorWidget: const Divider(
+                              color: Colors.black54,
+                              height: 1.0,
+                              thickness: 0.0,
                             ),
+                            leftHandSideColBackgroundColor:
+                                const Color.fromARGB(255, 98, 101, 151),
+                            rightHandSideColBackgroundColor:
+                                const Color.fromARGB(255, 98, 101, 151),
                           ),
-                        )),
+                        ),
+                      ),
+      ),
     );
   }
 
@@ -244,15 +245,23 @@ class _ExerciseErrorPageState extends State<ExerciseErrorPage> {
               alignment: Alignment.center,
               child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ExerciseDetailsPage(
-                          storageId: errorCount!.data![index].storageId!,
-                          type: 0,
-                        ),
-                      ),
-                    );
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return ExercisePage(
+                        grade: errorCount!.data![index].storageId!.toString(),
+                        difficulty: '0',
+                        type: 1,
+                      );
+                    }));
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => ExerciseDetailsPage(
+                    //       storageId: errorCount!.data![index].storageId!,
+                    //       type: 0,
+                    //     ),
+                    //   ),
+                    // );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -262,44 +271,6 @@ class _ExerciseErrorPageState extends State<ExerciseErrorPage> {
             ),
           ],
         ),
-        // Container(
-        //   width: width / 4,
-        //   height: 52,
-        //   padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-        //   alignment: Alignment.centerLeft,
-        //   child: Row(
-        //     children: <Widget>[
-        //       Icon(
-        //         Icons.safety_check,
-        //         color: Colors.green,
-        //         size: 18,
-        //       ),
-        //       Text(
-        //         'Active',
-        //         style: TextStyle(
-        //           color: Colors.white,
-        //         ),
-        //       )
-        //     ],
-        //   ),
-        // ),
-        // if (userStorage != null)
-        //   ...userStorage!.data!
-        //       .map(
-        //         (e) => Container(
-        //           width: width / 4,
-        //           height: 48,
-        //           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-        //           alignment: Alignment.center,
-        //           child: Text(
-        //             e.storageDifficulty.toString(),
-        //             style: TextStyle(
-        //               color: Colors.white,
-        //             ),
-        //           ),
-        //         ),
-        //       )
-        //       .toList(),
       ],
     );
   }

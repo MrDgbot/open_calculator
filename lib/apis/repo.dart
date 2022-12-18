@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:open_calculator/common/user_util.dart';
+import 'package:open_calculator/model/error_upload.dart';
 import 'package:open_calculator/model/submit_list.dart';
 import 'package:open_calculator/model/user_manager.dart';
 import 'package:dio/dio.dart';
@@ -95,5 +96,26 @@ class Repo {
   /// 获取错题
   static Future<Resp> getErrorExercise(String username) async {
     return await Http.get("${API.getErrorCount}?username=$username");
+  }
+
+  /// 上传错题
+  static Future<Resp> uploadErrorExercise(ErrorUpload errorUpload) async {
+    return await Http.postJSON(
+      API.uploadErrorExercise,
+      data: errorUpload.toString(),
+    );
+  }
+
+  /// 上传csv文件
+  static Future<Resp> uploadCSV(String path, int type) async {
+    Map<String, dynamic> formData = {
+      "file": await MultipartFile.fromFile(
+        path,
+      ),
+      "username": UserManager().userName,
+      "type": type,
+      "gradeId": UserManager().gradeId,
+    };
+    return await Http.postForm(API.uploadCsv, data: formData);
   }
 }

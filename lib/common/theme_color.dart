@@ -66,7 +66,7 @@ class ThemeColor {
       buttonColor: Colors.white,
       textTheme: ButtonTextTheme.primary,
     ),
-    textButtonTheme:  TextButtonThemeData(
+    textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
         foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
       ),

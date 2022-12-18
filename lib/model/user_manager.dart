@@ -23,7 +23,8 @@ class UserManager {
 
   // 年级
   get gradeId => StorageUtil.getString('gradeId');
-  get gradeString => UserUtil.numberToGrade(int.parse(StorageUtil.getString('gradeId')));
+  get gradeString =>
+      UserUtil.numberToGrade(int.parse(StorageUtil.getString('gradeId')));
   set setGradeId(String value) => StorageUtil.setString('gradeId', value);
 
   // 是否登录（ StorageUtil.getBool('isLogin')）

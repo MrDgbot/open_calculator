@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_drawing_board/paint_contents.dart';
+// import 'package:flutter_drawing_board/paint_contents.dart';
 import 'package:open_calculator/apis/repo.dart';
 import 'package:open_calculator/common/generator.dart';
 import 'package:open_calculator/common/log.dart';
@@ -10,7 +10,7 @@ import 'package:open_calculator/model/submit_list.dart';
 import 'package:open_calculator/model/user_manager.dart';
 import 'package:open_calculator/topvars.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_drawing_board/flutter_drawing_board.dart';
+// import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:animated_flip_counter/animated_flip_counter.dart';
 
 class Exercise extends StatefulWidget {
@@ -48,7 +48,7 @@ class _ExerciseState extends State<Exercise> {
   List<TextEditingController> _controllers = [];
 
   /// 手写板控制器
-  final List<DrawingController> _drawControllers = [];
+  // final List<DrawingController> _drawControllers = [];
 
   /// 颜色
   final List<Color> _colors = [];
@@ -74,7 +74,7 @@ class _ExerciseState extends State<Exercise> {
 
   /// 初始化题目
   void loading() {
-    List<String> difficulties = ['简单', '中等', '困难'];
+    // List<String> difficulties = ['简单', '中等', '困难'];
 
     switch (widget.difficulty) {
       case '简单':
@@ -102,10 +102,10 @@ class _ExerciseState extends State<Exercise> {
     for (var i = 0; i < _calculationAbles.length; i++) {
       /// 创建文本控制器
       _controllers.add(TextEditingController());
-      _drawControllers.add(DrawingController(
-          config: DrawConfig(contentType: SimpleLine).copyWith(
-        color: Colors.white,
-      )));
+      // _drawControllers.add(DrawingController(
+      //     config: DrawConfig(contentType: SimpleLine).copyWith(
+      //   color: Colors.white,
+      // )));
 
       /// 创建颜色
       _colors.add(
@@ -152,7 +152,6 @@ class _ExerciseState extends State<Exercise> {
         correctCount++;
       } else {
         _colors[i] = Colors.red;
-
         _controllers[i].text += '[正确答案：${_calculationAbles[i].result}]';
         errorCount++;
       }
@@ -232,14 +231,14 @@ class _ExerciseState extends State<Exercise> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 代有返回按钮的appbar
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 70, 74, 121),
         title: Text('习题集 ${grade2String()} ${widget.difficulty}',
             style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold)),
         centerTitle: true,
-
         // 返回红色按钮
         actions: [
           Padding(
@@ -293,7 +292,6 @@ class _ExerciseState extends State<Exercise> {
       body: Column(
         children: [
           buildTopList(),
-
           // 提交卡片
           Expanded(
             child: Padding(
@@ -316,7 +314,9 @@ class _ExerciseState extends State<Exercise> {
                       const Text(
                         '答题时间 ',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            color: Color.fromARGB(255, 70, 74, 121),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
 
                       ///AnimatedFlipCounter
@@ -360,7 +360,9 @@ class _ExerciseState extends State<Exercise> {
                       Text(
                         '答题进度 $totalCount/${_calculationAbles.length}',
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            color: Color.fromARGB(255, 70, 74, 121),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
                       // 提交显示正确率,根据_colors数组中绿色和红色计算
                       _isSubmit
@@ -381,66 +383,7 @@ class _ExerciseState extends State<Exercise> {
 
                       const Expanded(child: sizedBox),
                       // 绿色圆角提交按钮 左边为图标
-                      ElevatedButton(
-                        // 边框改成圆角
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 70, 74, 121),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(29)),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20),
-                        ),
-                        child: Text(_isSubmit ? '返回' : '提交',
-                            style: const TextStyle(
-                                fontSize: 20, color: Colors.white)),
-                        onPressed: () {
-                          /// 弹窗提示确认后返回
-                          if (_isSubmit) {
-                            Navigator.pop(context);
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor:
-                                    const Color.fromARGB(255, 70, 74, 121),
-                                title: const Text('确认提交吗？',
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.white)),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('取消',
-                                        style: TextStyle(
-                                            fontSize: 16, color: Colors.white)),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text('确认',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color:
-                                                Colors.white.withOpacity(0.6))),
-                                    onPressed: () {
-                                      // 提示正在检查答案
-                                      Navigator.pop(context);
-                                      // if (!_isSubmit) {
-                                      _timer?.cancel();
-                                      setState(() {
-                                        _checkAnswer();
-                                      });
-                                      // } else {
-                                      //   Navigator.pop(context);
-                                      // }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        },
-                      ),
+                      submitButton(context),
                     ],
                   ),
                 ),
@@ -452,281 +395,326 @@ class _ExerciseState extends State<Exercise> {
     );
   }
 
+  ElevatedButton submitButton(BuildContext context) {
+    return ElevatedButton(
+      // 边框改成圆角
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromARGB(255, 70, 74, 121),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(29)),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      ),
+      child: Text(_isSubmit ? '返回' : '提交',
+          style: const TextStyle(fontSize: 20, color: Colors.white)),
+      onPressed: () {
+        /// 弹窗提示确认后返回
+        if (_isSubmit) {
+          Navigator.pop(context);
+        } else {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: const Color.fromARGB(255, 70, 74, 121),
+              title: const Text('确认提交吗？',
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
+              actions: [
+                TextButton(
+                  child: const Text('取消',
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                TextButton(
+                  child: Text('确认',
+                      style: TextStyle(
+                          fontSize: 16, color: Colors.white.withOpacity(0.6))),
+                  onPressed: () {
+                    // 提示正在检查答案
+                    Navigator.pop(context);
+                    // if (!_isSubmit) {
+                    _timer?.cancel();
+                    setState(() {
+                      _checkAnswer();
+                    });
+                    // } else {
+                    //   Navigator.pop(context);
+                    // }
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
   /// 中间列表
   Container buildTopList() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       height: Screen.screenHeight / 1.4,
-      child: GridView.builder(
+      child: ListView.builder(
           itemCount: _calculationAbles.length,
           scrollDirection: Axis.vertical,
-          // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //   crossAxisCount: 1,
-          //   childAspectRatio: 5,
-          //   mainAxisSpacing: 10,
-          //   crossAxisSpacing: 10,
-          // ),
-          // itemExtent: Screen.screenHeight / 3.2,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: Screen.screenRatio / 0.6,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (_, int position) => _buildItem(position)),
+          itemBuilder: (_, int position) {
+            // 一行两个,如果剩余的只有一个,则单独一行
+            if (position % 2 == 0) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: _buildItem(position),
+                  ),
+                  (position + 1 < _calculationAbles.length)
+                      ? Expanded(
+                          child: _buildItem(position + 1),
+                        )
+                      : const Expanded(child: sizedBox),
+                ],
+              );
+            } else {
+              return sizedBox;
+            }
+          }),
     );
   }
 
   /// 单个卡片
-  Container _buildItem(int position) => Container(
-        // color: Colors.red,
-        child: SizedBox(
-          child: Card(
-            //调整圆角
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(9))),
-            color: _colors[position],
-            elevation: 4,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildItem(int position) => Card(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(9))),
+        color: _colors[position],
+        elevation: 4,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 题目
+                    Text(
+                      "${_calculationAbles[position]} = ?",
+                      overflow: TextOverflow.fade,
+                      style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // 背景为灰色的输入框
+                    Container(
+                      height: Screen.screenHeight / 11,
+                      decoration: BoxDecoration(
+                        color: _isSubmit ? Colors.grey[400] : Colors.grey[200],
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(6)),
+                      ),
+                      child: TextField(
+                        controller: _controllers[position],
+                        style:
+                            const TextStyle(fontSize: 18, color: Colors.black),
+                        // 是否可以编辑
+                        enabled: !_isSubmit,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '点击输入',
+                          hintStyle: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                          contentPadding: EdgeInsets.only(left: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // 提示ROW【第X题、做题人数、正确率、收藏】
+                    Row(
                       children: [
-                        /// 题目
-                        Expanded(
-                          child: Text(
-                            "${_calculationAbles[position]} = ?",
-                            overflow: TextOverflow.fade,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
+                        Text(
+                          '第${position + 1}题',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  _isSubmit ? Colors.white : Colors.grey[500],
+                              fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
-                          height: 10,
+                          width: 10,
                         ),
-                        // 背景为灰色的输入框
-                        Container(
-                          height: Screen.screenHeight / 11,
-                          decoration: BoxDecoration(
-                            color:
-                                _isSubmit ? Colors.grey[400] : Colors.grey[200],
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(6)),
-                          ),
-                          child: TextField(
-                            controller: _controllers[position],
-                            style: const TextStyle(
-                                fontSize: 18, color: Colors.black),
-                            // 是否可以编辑
-                            enabled: !_isSubmit,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: '点击输入',
-                              hintStyle: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey,
-                              ),
-                              contentPadding: EdgeInsets.only(left: 10),
-                            ),
-                          ),
+                        Text(
+                          '做题人数: 98',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  _isSubmit ? Colors.white : Colors.grey[500],
+                              fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
-                          height: 10,
+                          width: 10,
                         ),
-
-                        /// 提示ROW【第X题、做题人数、正确率、收藏】
-                        Row(
-                          children: [
-                            Text(
-                              '第${position + 1}题',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: _isSubmit
-                                      ? Colors.white
-                                      : Colors.grey[500],
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              '做题人数: 98',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: _isSubmit
-                                      ? Colors.white
-                                      : Colors.grey[500],
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              '正确率: 98.92%',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: _isSubmit
-                                      ? Colors.white
-                                      : Colors.grey[500],
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                          ],
+                        Text(
+                          '正确率: 98.92%',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  _isSubmit ? Colors.white : Colors.grey[500],
+                              fontWeight: FontWeight.bold),
                         ),
-                        // 线性收藏按钮
-                        // Row(
-                        //   children: [
-                        //     Expanded(child: sizedBox),
-                        //     OutlinedButton(
-                        //       // 修改圆角
-                        //       style: OutlinedButton.styleFrom(
-                        //         shape: RoundedRectangleBorder(
-                        //             borderRadius:
-                        //                 BorderRadius.all(Radius.circular(29))),
-                        //         side: BorderSide(
-                        //           color: Colors.grey[500]!,
-                        //           width: 1,
-                        //         ),
-                        //       ),
-                        //       onPressed: () {},
-                        //       child: Padding(
-                        //         padding: const EdgeInsets.all(4.0),
-                        //         child: Row(
-                        //           mainAxisAlignment: MainAxisAlignment.end,
-                        //           children: [
-                        //             Icon(
-                        //               Icons.star,
-                        //               color: Colors.grey[500],
-                        //             ),
-                        //             Text(
-                        //               '收藏',
-                        //               style: TextStyle(
-                        //                   fontSize: 14,
-                        //                   color: Colors.grey[500],
-                        //                   fontWeight: FontWeight.bold),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
+                        const SizedBox(
+                          width: 10,
+                        ),
                       ],
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  // 手写板
-                  // _drawBoard(position)
-                ],
+                    // 线性收藏按钮
+                    // Row(
+                    //   children: [
+                    //     Expanded(child: sizedBox),
+                    //     OutlinedButton(
+                    //       // 修改圆角
+                    //       style: OutlinedButton.styleFrom(
+                    //         shape: RoundedRectangleBorder(
+                    //             borderRadius:
+                    //                 BorderRadius.all(Radius.circular(29))),
+                    //         side: BorderSide(
+                    //           color: Colors.grey[500]!,
+                    //           width: 1,
+                    //         ),
+                    //       ),
+                    //       onPressed: () {},
+                    //       child: Padding(
+                    //         padding: const EdgeInsets.all(4.0),
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.end,
+                    //           children: [
+                    //             Icon(
+                    //               Icons.star,
+                    //               color: Colors.grey[500],
+                    //             ),
+                    //             Text(
+                    //               '收藏',
+                    //               style: TextStyle(
+                    //                   fontSize: 14,
+                    //                   color: Colors.grey[500],
+                    //                   fontWeight: FontWeight.bold),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(
+                width: 10,
+              ),
+              // 手写板
+              // _drawBoard(position)
+            ],
           ),
         ),
       );
-
-  Expanded _drawBoard(int position) {
-    return Expanded(
-      flex: 1,
-      child: Stack(
-        children: [
-          SizedBox(
-            child: DrawingBoard(
-              background: ClipRRect(
-                  borderRadius: BorderRadius.circular(9),
-                  child: Container(color: Colors.white.withOpacity(0.5))),
-              showDefaultActions: false,
-              showDefaultTools: false,
-              controller: _drawControllers[position],
-              boardScaleEnabled: false,
-              boardPanEnabled: true,
-            ),
-          ),
-
-          /// 橡皮擦
-          Positioned(
-            top: 10,
-            right: 10,
-            child: GestureDetector(
-              onTap: () {
-                _drawControllers[position].clear();
-              },
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Icon(
-                  Icons.clear,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-
-          /// 上一步
-          Positioned(
-            top: 10,
-            right: 50,
-            child: GestureDetector(
-              onTap: () {
-                _drawControllers[position].undo();
-              },
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Icon(
-                  Icons.undo,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-
-          /// 下一步
-          Positioned(
-            top: 10,
-            right: 90,
-            child: GestureDetector(
-              onTap: () {
-                _drawControllers[position].redo();
-              },
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Icon(
-                  Icons.redo,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  //
+  // Expanded _drawBoard(int position) {
+  //   return Expanded(
+  //     flex: 1,
+  //     child: Stack(
+  //       children: [
+  //         SizedBox(
+  //           child: DrawingBoard(
+  //             background: ClipRRect(
+  //                 borderRadius: BorderRadius.circular(9),
+  //                 child: Container(color: Colors.white.withOpacity(0.5))),
+  //             showDefaultActions: false,
+  //             showDefaultTools: false,
+  //             controller: _drawControllers[position],
+  //             boardScaleEnabled: false,
+  //             boardPanEnabled: true,
+  //           ),
+  //         ),
+  //
+  //         /// 橡皮擦
+  //         Positioned(
+  //           top: 10,
+  //           right: 10,
+  //           child: GestureDetector(
+  //             onTap: () {
+  //               _drawControllers[position].clear();
+  //             },
+  //             child: Container(
+  //               width: 30,
+  //               height: 30,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white.withOpacity(0.5),
+  //                 borderRadius: BorderRadius.circular(15),
+  //               ),
+  //               child: const Icon(
+  //                 Icons.clear,
+  //                 color: Colors.black,
+  //                 size: 20,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //
+  //         /// 上一步
+  //         Positioned(
+  //           top: 10,
+  //           right: 50,
+  //           child: GestureDetector(
+  //             onTap: () {
+  //               _drawControllers[position].undo();
+  //             },
+  //             child: Container(
+  //               width: 30,
+  //               height: 30,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white.withOpacity(0.5),
+  //                 borderRadius: BorderRadius.circular(15),
+  //               ),
+  //               child: const Icon(
+  //                 Icons.undo,
+  //                 color: Colors.black,
+  //                 size: 20,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //
+  //         /// 下一步
+  //         Positioned(
+  //           top: 10,
+  //           right: 90,
+  //           child: GestureDetector(
+  //             onTap: () {
+  //               _drawControllers[position].redo();
+  //             },
+  //             child: Container(
+  //               width: 30,
+  //               height: 30,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white.withOpacity(0.5),
+  //                 borderRadius: BorderRadius.circular(15),
+  //               ),
+  //               child: const Icon(
+  //                 Icons.redo,
+  //                 color: Colors.black,
+  //                 size: 20,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   String colorString(Color color) =>
       "#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}";
@@ -789,5 +777,5 @@ class _ExerciseState extends State<Exercise> {
 //         ],
 //       ),
 //     );
-  _onPressed() {}
+//   _onPressed() {}
 }

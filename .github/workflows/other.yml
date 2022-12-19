@@ -45,18 +45,18 @@ jobs:
           mkdir -p releases
           mv -f build/app/outputs/flutter-apk/*-release.apk releases
           mv -f releases/app-release.apk releases/app-universal-release.apk
-      - name: Sign build apk
-        uses: iota9star/sign-android-release@v1.0.5
-        with:
-          releaseDirectory: releases
-          fileRegex: .*-release.apk
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-      - name: Rename signed apk
-        run: |
-          for name in $(ls releases/*-signed.apk);do mv -f $name ${name%-signed.apk}.apk ;done
+#      - name: Sign build apk
+#        uses: iota9star/sign-android-release@v1.0.5
+#        with:
+#          releaseDirectory: releases
+#          fileRegex: .*-release.apk
+#          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+#          alias: ${{ secrets.ALIAS }}
+#          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+#          keyPassword: ${{ secrets.KEY_PASSWORD }}
+#      - name: Rename signed apk
+#        run: |
+#          for name in $(ls releases/*-signed.apk);do mv -f $name ${name%-signed.apk}.apk ;done
       - name: Build linux app
         run: |
           sudo apt-get install bash curl file unzip xz-utils zip libglu1-mesa clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev -y
@@ -71,7 +71,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: "releases/*-release.apk,linux-release.zip"
-          token: ${{ secrets.ACTION_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.TAG }}
 
   build-windows-app:
@@ -96,7 +96,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: "windows-win32-release.zip,open_calculator_setup.exe"
-          token: ${{ secrets.ACTION_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.TAG }}
 
   build-macos-app:
@@ -149,6 +149,6 @@ jobs:
         with:
           allowUpdates: true
           artifacts: "macos-release.dmg"
-          token: ${{ secrets.ACTION_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.TAG }}
 

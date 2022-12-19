@@ -8,7 +8,7 @@ import 'package:open_calculator/model/user_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
-import 'package:open_calculator/pages/exercise_details.dart';
+import 'package:open_calculator/pages/exercise/exercise_details.dart';
 
 /// 做题记录
 class TablePage extends StatefulWidget {

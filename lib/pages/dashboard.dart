@@ -5,7 +5,7 @@ import 'package:open_calculator/common/screen.dart';
 import 'package:open_calculator/common/user_util.dart';
 import 'package:open_calculator/model/today_info.dart';
 import 'package:open_calculator/model/user_manager.dart';
-import 'package:open_calculator/pages/exercise.dart';
+import 'package:open_calculator/pages/exercise/exercise.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:bruno/bruno.dart';

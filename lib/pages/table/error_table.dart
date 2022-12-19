@@ -7,7 +7,7 @@ import 'package:open_calculator/model/user_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
-import 'package:open_calculator/pages/exercise.dart';
+import 'package:open_calculator/pages/exercise/exercise.dart';
 
 /// 错题记录
 class ExerciseErrorPage extends StatefulWidget {

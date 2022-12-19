@@ -110,14 +110,13 @@ class _LoginPageState extends State<LoginPage> {
                               return;
                             }
 
-                            // 准备用户数据
+                            /// 准备用户数据
                             _userManager.setUserName = _usernameController.text;
                             _userManager.setUserPwd = _passwordController.text;
                             _userManager.setGradeId =
                                 UserUtil.gradeToNumber(_grade).toString();
 
                             if (_isRegister) {
-                              // print("我在注册");
                               _userManager.setIsLogin =
                                   await _userManager.register();
                               if (_userManager.isLogin) {

@@ -4,7 +4,7 @@ import 'package:open_calculator/widgets/charts/c_line_chart.dart';
 import 'package:open_calculator/widgets/charts/legend_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../common/config.dart';
+import '../../common/config.dart';
 
 class ChartsPage extends StatefulWidget {
   const ChartsPage({Key? key}) : super(key: key);

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ThemeColor {
   ThemeColor._();
 
-  static ThemeData darkTheme = ThemeData().copyWith(
+  static ThemeData darkTheme = ThemeData(fontFamily: 'mono').copyWith(
     primaryColor: const Color.fromARGB(255, 98, 101, 151),
     backgroundColor: const Color.fromARGB(255, 98, 101, 151),
     scaffoldBackgroundColor: const Color.fromARGB(255, 98, 101, 151),

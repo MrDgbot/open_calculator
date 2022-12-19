@@ -6,7 +6,7 @@
 #define MyAppVersion "1.0.0-RC35+57"
 #define MyAppPublisher "open_calculator.me"
 #define MyAppURL "https://opendg.com/"
-#define MyAppExeName "open_calculator_flutter.exe"
+#define MyAppExeName "open_calculator.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.

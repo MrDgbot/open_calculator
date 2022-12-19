@@ -89,12 +89,12 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "io.open_calculator.flutter" "\0"
+            VALUE "CompanyName", "com.edu" "\0"
             VALUE "FileDescription", "口算系统" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "open_calculator" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 io.open_calculator.flutter. All rights reserved." "\0"
-            VALUE "OriginalFilename", "open_calculator_flutter.exe" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2022 com.edu. All rights reserved." "\0"
+            VALUE "OriginalFilename", "open_calculator.exe" "\0"
             VALUE "ProductName", "open_calculator" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END

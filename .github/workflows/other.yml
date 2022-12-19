@@ -127,23 +127,23 @@ jobs:
           security unlock-keychain -p $MACOS_CERTIFICATES_PWD build.keychain
           security import Certificates.p12 -k build.keychain -P $MACOS_CERTIFICATES_PWD -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CERTIFICATES_PWD build.keychain
-          /usr/bin/codesign --force --deep -s $MACOS_IDENTITY ./$MACOS_APP_RELEASE_PATH/open_calculatorProject.app
+          /usr/bin/codesign --force --deep -s $MACOS_IDENTITY ./$MACOS_APP_RELEASE_PATH/open_calculator.app
           brew install create-dmg
           cd $MACOS_APP_RELEASE_PATH
           create-dmg \
-            --volname "open_calculatorProject Installer" \
+            --volname "Open_calculator Installer" \
             --window-pos 200 120 \
             --window-size 800 529 \
             --icon-size 130 \
             --text-size 14 \
-            --icon "open_calculatorProject.app" 260 250 \
-            --hide-extension "open_calculatorProject.app" \
+            --icon "open_calculator.app" 260 250 \
+            --hide-extension "open_calculator.app" \
             --app-drop-link 540 250 \
             --hdiutil-quiet \
-            "open_calculatorProject.dmg" \
-            "open_calculatorProject.app"
+            "open_calculator.dmg" \
+            "open_calculator.app"
           cd ../../../../../
-          mv $MACOS_APP_RELEASE_PATH/open_calculatorProject.dmg macos-release.dmg
+          mv $MACOS_APP_RELEASE_PATH/open_calculator.dmg macos-release.dmg
       - name: Release build
         uses: ncipollo/release-action@v1
         with:

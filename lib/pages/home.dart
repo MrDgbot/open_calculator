@@ -373,8 +373,8 @@ class _HomePageState extends State<HomePage> {
   /// 导入弹窗
   void _importDialog() {
     /// 弹窗选择，加入错题记录还是做题记录
-    /// 选择错题记录可以重做
-    /// 选择做题记录只能查看答案
+    /// 选择错题记录全部重做
+    /// 选择做题记录只能查看答案，重做错题部分
     showModalBottomSheet(
         backgroundColor: Colors.white.withOpacity(0.9),
         context: context,

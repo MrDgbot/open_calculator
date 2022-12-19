@@ -69,7 +69,7 @@ dev_dependencies:
   glob: ^2.1.0
   http: ^0.13.5
   process_run: ^0.12.3+2
-  build_runner: ^2.3.2
+  build_runner: ^2.3.3
   json_serializable: ^6.5.4
   hive_generator: ^2.0.0
   flutter_lints: ^2.0.1

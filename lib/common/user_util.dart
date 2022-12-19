@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:open_calculator/common/extension.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -52,22 +50,113 @@ class UserUtil {
     final UserGradeList gradeList = UserGradeList(data: []);
     for (var i = 1; i <= 6; i++) {
       /// 数量，长度
-      final gradeItem item = gradeItem(
-        easy: [
-          3 + Random().nextInt(i * 2),
-          2 + Random().nextInt(i * 1),
-        ],
-        medium: [
-          3 + Random().nextInt(i * 3),
-          2 + Random().nextInt(i * 2),
-        ],
-        hard: [3 + Random().nextInt(i * 4), 2 + Random().nextInt(i * 3)],
-      );
-      gradeList.data?.add(item);
+      if (i == 1) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            2,
+          ],
+          medium: [
+            15,
+            2,
+          ],
+          hard: [
+            20,
+            2,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
+      if (i == 2) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            2,
+          ],
+          medium: [
+            15,
+            2,
+          ],
+          hard: [
+            20,
+            3,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
+      if (i == 3) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            2,
+          ],
+          medium: [
+            15,
+            2,
+          ],
+          hard: [
+            20,
+            3,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
+      if (i == 4) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            3,
+          ],
+          medium: [
+            15,
+            3,
+          ],
+          hard: [
+            20,
+            4,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
+      if (i == 5) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            4,
+          ],
+          medium: [
+            15,
+            4,
+          ],
+          hard: [
+            20,
+            5,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
+      if (i == 5) {
+        final gradeItem item = gradeItem(
+          easy: [
+            10,
+            5,
+          ],
+          medium: [
+            15,
+            5,
+          ],
+          hard: [
+            20,
+            6,
+          ],
+        );
+        gradeList.data?.add(item);
+      }
     }
     // print(gradeList.toString());
     StorageUtil.setString("generateGradeList", gradeList.toString());
   }
+
 // // Create a map that maps grades to their corresponding data
 //     Map<String, Map<String, List<int>>> gradeList = {
 //       for (int grade = 1; grade <= 6; grade++)

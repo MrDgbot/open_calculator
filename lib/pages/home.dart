@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> {
           DropdownButton<String>(
             value: _grade,
             icon: const Icon(Icons.arrow_drop_down),
-            iconSize: 24,
+            iconSize: 15,
             elevation: 16,
             dropdownColor: const Color.fromARGB(255, 71, 74, 118),
             style:

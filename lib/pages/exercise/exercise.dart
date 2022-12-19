@@ -113,6 +113,7 @@ class _ExercisePageState extends State<ExercisePage> {
     /// 三到六年级加减乘除
     final List<bool> otherGrade = [true, true, true, true];
 
+    /// 使用本地算法类，根据当前年级的难度生成题目
     _calculationAbles = Generator().random(
         currentCount,
         currentLen,
@@ -127,8 +128,10 @@ class _ExercisePageState extends State<ExercisePage> {
   /// 网络加载题目
   _loadNetwork() async {
     try {
+      /// 传入为指定习题集号则进行网络请求读取
       var data = await Repo.getExerciseDetail(int.parse(widget.grade),
           filter: int.parse(widget.difficulty));
+
       if (data.success) {
         setState(() {
           _exerciseDetails = ExerciseDetail.fromJson(data.data);
@@ -334,6 +337,7 @@ class _ExercisePageState extends State<ExercisePage> {
             )
           : Column(
               children: [
+                // 习题列表
                 Expanded(child: buildTopList()),
                 // 提交卡片
                 Container(
@@ -593,7 +597,7 @@ class _ExercisePageState extends State<ExercisePage> {
     );
   }
 
-  /// 中间列表
+  /// 做题列表
   Container buildTopList() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),

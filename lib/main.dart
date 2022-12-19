@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:open_calculator/apis/store.dart';
 import 'package:open_calculator/common/log.dart';
 import 'package:open_calculator/common/storage.dart';
@@ -16,7 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   /// 为了在桌面上显示窗口，我们需要初始化 WindowManager
-  if (!kIsWeb && (Platform.isLinux || Platform.isMacOS || Platform.isWindows)) {
+  if (Platform.isMacOS) {
     windowManager.ensureInitialized();
     windowManager.waitUntilReadyToShow(
         const WindowOptions(
@@ -28,6 +29,7 @@ Future<void> main() async {
             titleBarStyle: TitleBarStyle.hidden), () async {
       await windowManager.show();
       await windowManager.focus();
+      /// 显示关闭按钮
     });
   }
 
@@ -47,6 +49,17 @@ Future<void> main() async {
     // );
 
     runApp(const MyApp());
+    if (Platform.isWindows) {
+      doWhenWindowReady(() {
+        final win = appWindow;
+        const initialSize = Size(900, 550);
+        win.minSize = initialSize;
+        win.size = initialSize;
+        win.alignment = Alignment.center;
+        win.title = "口算习题";
+        win.show();
+      });
+    }
   }, (exception, stackTrace) async {
     'Caught unhandled exception: $exception'
         .debug(tag: '💂 runZonedGuard', stackTrace: stackTrace);

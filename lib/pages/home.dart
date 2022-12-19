@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
     '首页',
     '习题分析',
     '做题记录',
-    '错题记录',
+    '错题巩固',
   ];
 
   /// 年级列表

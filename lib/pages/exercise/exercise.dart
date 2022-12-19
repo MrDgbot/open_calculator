@@ -446,7 +446,7 @@ class _ExercisePageState extends State<ExercisePage> {
       backgroundColor: const Color.fromARGB(255, 70, 74, 121),
       title: Text(
           widget.type != 0
-              ? '错题记录'
+              ? '错题巩固'
               : '习题集 ${UserManager().gradeString} ${widget.difficulty}',
           style: const TextStyle(
               fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),

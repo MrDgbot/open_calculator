@@ -99,56 +99,73 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.inputs.TAG }}
 
-  build-macos-app:
-    name: Release MacOS
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-      - name: Set up xcode
-        uses: devbotsxyz/xcode-select@v1
-      - name: Build macos
-        env:
-          MACOS_CERTIFICATES: ${{ secrets.MACOS_CERTIFICATES }}
-          MACOS_CERTIFICATES_PWD: ${{ secrets.MACOS_CERTIFICATES_PWD }}
-          MACOS_IDENTITY: ${{ secrets.MACOS_IDENTITY }}
-          MACOS_APP_RELEASE_PATH: build/macos/Build/Products/Release
-        run: |
-          cp -f pubspec.yaml assets/
-          flutter config --enable-macos-desktop
-          flutter pub get
-          flutter build macos --release
-          echo $MACOS_CERTIFICATES | base64 --decode > Certificates.p12
-          security create-keychain -p $MACOS_CERTIFICATES_PWD build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p $MACOS_CERTIFICATES_PWD build.keychain
-          security import Certificates.p12 -k build.keychain -P $MACOS_CERTIFICATES_PWD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_CERTIFICATES_PWD build.keychain
-          /usr/bin/codesign --force --deep -s $MACOS_IDENTITY ./$MACOS_APP_RELEASE_PATH/open_calculator.app
-          brew install create-dmg
-          cd $MACOS_APP_RELEASE_PATH
-          create-dmg \
-            --volname "Open_calculator Installer" \
-            --window-pos 200 120 \
-            --window-size 800 529 \
-            --icon-size 130 \
-            --text-size 14 \
-            --icon "open_calculator.app" 260 250 \
-            --hide-extension "open_calculator.app" \
-            --app-drop-link 540 250 \
-            --hdiutil-quiet \
-            "open_calculator.dmg" \
-            "open_calculator.app"
-          cd ../../../../../
-          mv $MACOS_APP_RELEASE_PATH/open_calculator.dmg macos-release.dmg
-      - name: Release build
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          artifacts: "macos-release.dmg"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.event.inputs.TAG }}
+  build-macos:
+      name: "Build MacOS"
+      runs-on: macos-latest
+      timeout-minutes: 30
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      steps:
+        - uses: actions/checkout@v2.4.0
+
+        - name: Setup Flutter SDK
+          uses: subosito/flutter-action@v2.8.0
+          with:
+            channel: "stable"
+
+        - name: Set Up XCode
+          uses: devbotsxyz/xcode-select@v1.1.0
+
+        - name: Install create-dmg
+          run: brew install create-dmg
+
+        - name: Enable desktop
+          run: flutter config --enable-macos-desktop
+
+        - name: Install Cider
+          run: flutter pub global activate cider
+
+        - name: Set new Flutter version
+          run: cider version ${{ github.event.inputs.TAG }}
+
+        - name: Set release changelog
+          run: cider release
+
+        - name: Flutter get packages
+          run: flutter pub get
+
+        - name: Build Runner & version
+          run: flutter pub run build_runner build --delete-conflicting-outputs
+
+        - name: Flutter build app
+          run: flutter build macos
+
+        - name: Create dmg
+          run: |
+            ./scripts/create_mac_dmg.sh
+        - name: Compress artifacts
+          run: zip -r macos-${{ github.event.inputs.TAG }}.zip build/macos/Build/Products/Release
+
+        - name: Upload artifacts to release
+          uses: svenstaro/upload-release-action@2.2.1
+          with:
+            # GitHub token.
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
+            # Local file to upload.
+            file: macos-${{ github.event.inputs.TAG }}.zip
+            # Tag to use as a release.
+            tag: ${{ github.event.inputs.TAG }}
+
+        - name: Upload DMG to release
+          uses: svenstaro/upload-release-action@2.2.1
+          with:
+            # GitHub token.
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
+            # Local file to upload.
+            file: build/macos/Build/Products/Release/open_calculator.dmg
+            asset_name: open_calculator-macos-${{ github.event.inputs.TAG }}.dmg
+            # Tag to use as a release.
+            tag: ${{ github.event.inputs.TAG }}
+
 

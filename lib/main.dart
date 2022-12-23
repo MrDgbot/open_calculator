@@ -8,7 +8,6 @@ import 'package:open_calculator/common/storage.dart';
 import 'package:open_calculator/common/theme_color.dart';
 import 'package:open_calculator/common/user_util.dart';
 import 'package:open_calculator/pages/index.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:window_manager/window_manager.dart';
@@ -29,6 +28,7 @@ Future<void> main() async {
             titleBarStyle: TitleBarStyle.hidden), () async {
       await windowManager.show();
       await windowManager.focus();
+
       /// 显示关闭按钮
     });
   }

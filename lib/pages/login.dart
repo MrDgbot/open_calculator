@@ -151,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 22,
+                                fontFamily: 'mono',
                               ),
                             ),
                           ),
